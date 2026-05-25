@@ -3,11 +3,16 @@
 <package format="3">
   <name>seg_tray</name>
   <version>0.0.0</version>
-  <description>TODO: Package description</description>
-  <maintainer email="rubenmontero@uma.es">ruben</maintainer>
+  <description>Práctica 1: Seguimiento de caminos explícitos</description>
+  <maintainer email="rumonru05@gmail.com">Rubén Montero Ruiz</maintainer>
   <license>TODO: License declaration</license>
 
   <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>rclcpp</depend>
+  <depend>geometry_msgs</depend>
+  <depend>nav_msgs</depend>
+  <depend>sensor_msgs</depend>
 
   <test_depend>ament_lint_auto</test_depend>
   <test_depend>ament_lint_common</test_depend>
