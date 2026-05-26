@@ -131,11 +131,24 @@ private:
         }
         /////////// PUT YOUR CONTROL CODE HERE ///////////
 
-
-
+        // Compute distance and angle to the goal
+        double dx = goal_x_ - current_x_;
+        double dy = goal_y_ - current_y_;
+        double distance = hypot(dx, dy);
+        double angle_to_goal = atan2(dy, dx);
+        double angle_error = angle_to_goal - current_theta_;
         
+        // Normalize angle error to [-pi, pi]
+        while (angle_error > M_PI) angle_error -= 2 * M_PI;
+        while (angle_error < -M_PI) angle_error += 2 * M_PI;
+
+        double angular_velocity = control_gain_ * angle_error;
+        double linear_velocity = max_linear_speed_ * (1 - fabs(angle_error) / M_PI); // Reduce speed when turning
 
 
+        if (angular_velocity > max_angular_speed_) angular_velocity = max_angular_speed_;
+        if (angular_velocity < -max_angular_speed_) angular_velocity = -max_angular_speed_;
+        
         geometry_msgs::msg::Twist cmd_vel_msg;
 
         // Simple proportional controller
