@@ -16,15 +16,13 @@ find_package(sensor_msgs REQUIRED)
 add_executable(nav_p2p src/nav_p2p.cpp)
 ament_target_dependencies(nav_p2p rclcpp geometry_msgs nav_msgs)
 
-# Comentado para evitar conflictos con el nodo de navegación global
-
-# add_executable(corr_nav src/corr_nav.cpp)
-# ament_target_dependencies(corr_nav rclcpp geometry_msgs nav_msgs sensor_msgs)
+add_executable(corr_nav src/corr_nav.cpp)
+ament_target_dependencies(corr_nav rclcpp geometry_msgs nav_msgs sensor_msgs)
 
 # Instalar ejecutables
 install(TARGETS
   nav_p2p
-  # corr_nav
+  corr_nav
   DESTINATION lib/${PROJECT_NAME}
 )
 

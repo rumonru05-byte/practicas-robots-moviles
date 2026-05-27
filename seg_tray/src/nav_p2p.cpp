@@ -148,6 +148,8 @@ private:
 
         if (angular_velocity > max_angular_speed_) angular_velocity = max_angular_speed_;
         if (angular_velocity < -max_angular_speed_) angular_velocity = -max_angular_speed_;
+
+        ////////////////////////////////////////////////////
         
         geometry_msgs::msg::Twist cmd_vel_msg;
 
