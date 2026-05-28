@@ -155,16 +155,20 @@ private:
 
             /////////////////// PUT YOUR CONTROL CODE HERE ///////////
 
-            /*
-            Calcular coordenadas locales
-            d = look_ahead_distance_
-            Calcular distancia minima a las paredes con trigonometría
-            Calcular error lateral dL
-            Calcular curvatura k = 2 * dy / d^2
-            Calcular velcidad lineal v = max_linear_speed_ * (1 - abs(dL) / (corridor_width_/2))
-            Calcular velocidad angular w = k * v
-            */
+            double d = look_ahead_distance_;
+            double dL = (dist_left_ - dist_right_) / 2.0;
+            double dy = dL * cos(theta) - d * sin(theta); 
+            double k = 2 * dy / (d * d); // Curvature
+            double linear_velocity = 0.7 * max_linear_speed_ * (1 - fabs(dL) / (corridor_width_/2));
+            if (linear_velocity < 0.1) {
+                linear_velocity = 0.1; 
+            }
+            double angular_velocity = k * linear_velocity;
 
+            if (angular_velocity > max_angular_speed_) angular_velocity = max_angular_speed_;
+            if (angular_velocity < -max_angular_speed_) angular_velocity = -max_angular_speed_;
+            
+            /////////////////////////////////////////////////////////
 
             geometry_msgs::msg::Twist cmd_vel_msg;
             cmd_vel_msg.linear.x = linear_velocity;
