@@ -20,10 +20,14 @@ ament_target_dependencies(nav_p2p rclcpp geometry_msgs nav_msgs)
 add_executable(corr_nav src/corr_nav.cpp)
 ament_target_dependencies(corr_nav rclcpp geometry_msgs nav_msgs sensor_msgs std_srvs)
 
+add_executable(corr_nav_wall src/corr_nav_wall.cpp)
+ament_target_dependencies(corr_nav_wall rclcpp geometry_msgs nav_msgs sensor_msgs)
+
 # Instalar ejecutables
 install(TARGETS
   nav_p2p
   corr_nav
+  corr_nav_wall
   DESTINATION lib/${PROJECT_NAME}
 )
 
