@@ -12,6 +12,7 @@ find_package(geometry_msgs REQUIRED)
 find_package(nav_msgs REQUIRED)
 find_package(sensor_msgs REQUIRED)
 find_package(std_srvs REQUIRED)
+find_package(std_msgs REQUIRED)
 
 # Nodos
 add_executable(nav_p2p src/nav_p2p.cpp)
@@ -21,7 +22,7 @@ add_executable(corr_nav src/corr_nav.cpp)
 ament_target_dependencies(corr_nav rclcpp geometry_msgs nav_msgs sensor_msgs std_srvs)
 
 add_executable(corr_nav_wall src/corr_nav_wall.cpp)
-ament_target_dependencies(corr_nav_wall rclcpp geometry_msgs nav_msgs sensor_msgs)
+ament_target_dependencies(corr_nav_wall rclcpp geometry_msgs nav_msgs sensor_msgs std_msgs)
 
 # Instalar ejecutables
 install(TARGETS

@@ -2,6 +2,7 @@
 #include "sensor_msgs/msg/laser_scan.hpp"
 #include "geometry_msgs/msg/twist.hpp"
 #include "nav_msgs/msg/odometry.hpp"
+#include "std_msgs/msg/float64.hpp"
 #include <cmath>
 #include <vector>
 #include <numeric>
@@ -37,6 +38,12 @@ public:
         timer_ = this->create_wall_timer(
             std::chrono::milliseconds(time_step_),
             std::bind(&CorridorNavigationNode::controlLoop, this));
+
+        // Inicializar los publicadores para verlos en rqt
+        pub_m_izq_ = this->create_publisher<std_msgs::msg::Float64>("/pared_izq/m", 10);
+        pub_b_izq_ = this->create_publisher<std_msgs::msg::Float64>("/pared_izq/b", 10);
+        pub_m_der_ = this->create_publisher<std_msgs::msg::Float64>("/pared_der/m", 10);
+        pub_b_der_ = this->create_publisher<std_msgs::msg::Float64>("/pared_der/b", 10);
 
         RCLCPP_INFO(this->get_logger(), "Corridor Navigation Node Initialized");
         measured_data_=false;
@@ -160,20 +167,22 @@ private:
                 double theta_right = -std::atan(right_wall_.m);
                 theta = (theta_left + theta_right) / 2.0;
 
-                RCLCPP_INFO(this->get_logger(), "2 Paredes -> Izq [b: %.2f, m: %.2f] | Der [b: %.2f, m: %.2f]", 
+                RCLCPP_INFO(this->get_logger(), "\033[1;32mIzq [b: %.2f, m: %.2f] | Der [b: %.2f, m: %.2f]\033[0m", 
                                                 left_wall_.b, left_wall_.m, right_wall_.b, right_wall_.m);
 
             } else if (left_wall_.valid) {
                 // Solo vemos la pared izquierda (ej. tomando una curva)
                 dL = left_wall_.b - (corridor_width_ / 2.0);
                 theta = -std::atan(left_wall_.m);
-                RCLCPP_INFO(this->get_logger(), "1 Pared (Izq) -> [b: %.2f, m: %.2f]", left_wall_.b, left_wall_.m);
+                RCLCPP_INFO(this->get_logger(), "\033[1;32mIzq [b: %.2f, m: %.2f] | Der    [No válido]    \033[0m",
+                                                left_wall_.b, left_wall_.m);
 
             } else if (right_wall_.valid) {
                 // Solo vemos la pared derecha (ej. tomando la otra curva)
                 dL = (corridor_width_ / 2.0) - std::abs(right_wall_.b);
                 theta = -std::atan(right_wall_.m);
-                RCLCPP_INFO(this->get_logger(), "1 Pared (Der) -> [b: %.2f, m: %.2f]", right_wall_.b, right_wall_.m);
+                RCLCPP_INFO(this->get_logger(), "\033[1;32mIzq    [No válido]     | Der [b: %.2f, m: %.2f]\033[0m",
+                                                right_wall_.b, right_wall_.m);
             } else {
                 // Por seguridad, si llega aquí sin paredes, no hace nada
                 return; 
@@ -197,6 +206,20 @@ private:
             cmd_vel_msg.linear.x = linear_velocity;
             cmd_vel_msg.angular.z = angular_velocity;
             cmd_vel_pub_->publish(cmd_vel_msg);
+
+            // --- PUBLICAR VARIABLES PARA RQT ---
+            std_msgs::msg::Float64 msg_m_izq, msg_b_izq, msg_m_der, msg_b_der;
+
+            // Si la pared es válida mandamos su valor, si se pierde mandamos 0.0
+            msg_m_izq.data = left_wall_.valid ? left_wall_.m : 0.0;
+            msg_b_izq.data = left_wall_.valid ? left_wall_.b : 0.0;
+            msg_m_der.data = right_wall_.valid ? right_wall_.m : 0.0;
+            msg_b_der.data = right_wall_.valid ? right_wall_.b : 0.0;
+
+            pub_m_izq_->publish(msg_m_izq);
+            pub_b_izq_->publish(msg_b_izq);
+            pub_m_der_->publish(msg_m_der);
+            pub_b_der_->publish(msg_b_der);
         }
     }
 
@@ -205,6 +228,11 @@ private:
     rclcpp::Subscription<nav_msgs::msg::Odometry>::SharedPtr pose_sub_;
     rclcpp::Subscription<sensor_msgs::msg::LaserScan>::SharedPtr laser_sub_;
     rclcpp::TimerBase::SharedPtr timer_;
+    // (Al final de la clase, junto a cmd_vel_pub_...)
+    rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr pub_m_izq_;
+    rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr pub_b_izq_;
+    rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr pub_m_der_;
+    rclcpp::Publisher<std_msgs::msg::Float64>::SharedPtr pub_b_der_;
 
     // Parameters
     int time_step_;
